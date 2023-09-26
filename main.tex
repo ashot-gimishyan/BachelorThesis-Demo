@@ -1,0 +1,42 @@
+\documentclass[a4paper, 12pt, oneside]{book}
+
+\usepackage{titlesec} % Установить отступы для главы равными 0
+
+\titleformat{\chapter}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{0pt} % Установить отступы для главы равными 0
+
+%% подключаем стандарт библиографии
+\bibliographystyle{gost71u}
+
+%% for envirovemt "abstract" in class book
+\newenvironment{abstract}{}{}
+\usepackage{abstract}
+
+%% подключаем преамбулу, в ней содержатся подключение всех необходимых пакетов
+\input{include/preambule.tex}
+
+\setlength{\headheight}{27.11469pt}
+
+
+\begin{document}
+      % \input{include/title.tex} %% титульный лист
+      \input{parts/Annotation.tex} %% аннотоция
+      \tableofcontents %%содержание
+      \printglossary[type=\acronymtype, title=Список сокращений]
+
+      \input{parts/Abbreviations}
+      \input{parts/Chapter0.tex} %% Введение
+      \input{parts/Chapter1.tex} %% Постановка задачи
+      \input{parts/Chapter2.tex} %% Обзор существующих решений
+      \input{parts/Chapter3.tex} %% Исследование и построение решения задачи
+      \input{parts/Chapter4.tex} %% Описание практической части
+      \input{parts/Chapter5.tex} %% Заключение
+
+    %% Don't change the following lines
+      \nocite{*}
+      \bibliography{references}
+
+    %% в зависимости от надобности подключаем раздел "Приложениие"
+    % \newpage
+      \input{parts/Appendix}
+\end{document}

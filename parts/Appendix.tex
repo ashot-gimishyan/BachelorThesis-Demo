@@ -1,0 +1,101 @@
+\chapter{Приложение}
+\label{sec:Chapter6} \index{Chapter6}
+
+\section{Реализация классов ActorNetwork и CriticNetwork на Python}
+
+\label{sec:networks}
+
+\begin{minted}{python}
+class ActorNetwork(nn.Module):
+    def __init__(self, state_dim, action_dim, hidden_dim):
+        """
+        Инициализация акторной сети.
+        Args:
+        - state_dim (int): Размерность состояния.
+        - action_dim (int): Размерность действия.
+        - hidden_dim (int): Размерность скрытых слоев в сети.
+        """
+        super(ActorNetwork, self).__init__()
+        self.fc1 = nn.Linear(state_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, action_dim)
+        self.relu = nn.ReLU()
+        self.tanh = nn.Tanh()
+
+    def forward(self, state):
+        """
+        Прямой проход через акторную сеть.
+        Args:
+        - state (torch.Tensor): Входное состояние.
+
+        Returns:
+        - action (torch.Tensor): Выходное действие.
+        """
+        x = self.relu(self.fc1(state))
+        x = self.relu(self.fc2(x))
+        x = self.tanh(self.fc3(x))
+        return x
+
+    
+class CriticNetwork(nn.Module):
+    def __init__(self, state_dim, action_dim, hidden_dim):
+        """
+        Инициализация критической сети.
+        Args:
+        - state_dim (int): Размерность состояния.
+        - action_dim (int): Размерность действия.
+        - hidden_dim (int): Размерность скрытых слоев в сети.
+        """
+        super(CriticNetwork, self).__init__()
+        self.fc1 = nn.Linear(state_dim + action_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, 1)
+        self.relu = nn.ReLU()
+
+    def forward(self, state, action):
+        """
+        Прямой проход через критическую сеть.
+        Args:
+        - state (torch.Tensor): Входное состояние.
+        - action (torch.Tensor): Входное действие.
+
+        Returns:
+        - q_value (torch.Tensor): Выходное значение Q-функции.
+        """
+        x = torch.cat([state, action], dim=-1)
+        x = self.relu(self.fc1(x))
+        x = self.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x 
+
+\end{minted}
+
+
+\section{Функция main() для инициализации параметров и запуска обучения}
+
+\begin{minted}{python}
+def main():
+    sum_of_money = 100.0  # Общая сумма денег
+    a = 1 # Первый агент получит a, если итоговое соглашение не будет достигнуто
+    b = 1 # Второй агент получит b, если итоговое соглашение не будет достигнуто
+    num_agents = 2  # Количество агентов в модифицированной задаче о сделке
+    discount_factor = 0.99  # Коэффициент дисконтирования
+    epsilon_1 = 0.75 # Сила первого агента
+    epsilon_2 = 0.74 # Сила второго агента
+    
+    env = NegotiationEnvironment(sum_of_money, a, b, discount_factor, epsilon_1,
+    epsilon_2)  # Инициализация среды переговоров
+    
+    # Инициализация агентов
+    agent1 = MADDPGAgent(agent_id=0, state_dim=env.state_dim,
+    action_dim=env.action_dim, hidden_dim=128)
+    agent2 = MADDPGAgent(agent_id=1, state_dim=env.state_dim,
+    action_dim=env.action_dim, hidden_dim=128)
+    agents = [agent1, agent2]  # Список агентов
+    
+    batch_size = 64     # Размер пакета для обучения
+    num_episodes = 1000 # Количество эпизодов обучения
+
+    # Запуск обучения
+    train_maddpg(env, agents, num_episodes, batch_size)
+\end{minted}
